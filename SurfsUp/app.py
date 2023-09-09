@@ -105,7 +105,7 @@ def tobs_date(start):
         # Handle the case where no data is found for the given date
         return jsonify({"error": "Data not found for the specified date"}), 404
 #For a specified start, calculate TMIN, TAVG and TMAX for all the dates greater than or equal to the start date.
-start_range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=dt.date(2017,8,23)).all()
+    start_range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=dt.date(2017,8,23)).all()
     if start_range_data:
         min_start_temp = start_range_data[0][0]
         max_start_temp = start_range_data[0][1]
@@ -122,12 +122,11 @@ start_range_data = session.query(func.min(Measurement.tobs), func.max(Measuremen
     else:
         # Handle the case where no data is found for the given date
         return jsonify({"error": "Data not found for the specified date range"}), 404
-if __name__ == "__main__":
-    app.run(debug=True)
+
 #For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
 @app.route("/api/v1.0/<start>/<end>")
 def tobs_date(start,end):
-range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=end).all()
+    range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=end).all()
     if range_data:
         min_start_temp = range_data[0][0]
         max_start_temp = range_data[0][1]
@@ -144,3 +143,6 @@ range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs
     else:
         # Handle the case where no data is found for the given date
         return jsonify({"error": "Data not found for the specified date range"}), 404
+    
+if __name__ == "__main__":
+    app.run(debug=True)
