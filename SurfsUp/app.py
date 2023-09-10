@@ -43,8 +43,8 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end><br/>")
+        f"/api/v1.0/&lt;start&gt;<br/>"
+        f"/api/v1.0/&lt;start&gt;/&lt;end&gt;<br/>")
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 #Convert query results to a dictionary.
 # reflect an existing database into a new model
@@ -103,7 +103,7 @@ def tobs_route():
     station_temp_df['Date']=pd.to_datetime(station_temp_df['Date'])
     station_temp_df = station_temp_df.sort_values(by='Date')
     station_temp_df
-    station_temp_json = [{"Date": day['Date'],'TOBS':day['TOBS']} for day in station_temp_df]
+    station_temp_json = [{'Date': day['Date'],'TOBS':day['TOBS']} for day in station_temp_df]
     return jsonify(station_temp_json)
 
 #Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start of start-end range.
