@@ -64,7 +64,7 @@ def precipitation_route():
 # Calculate the date one year from the last date in data set.
     sel=[Measurement.date,Measurement.prcp]
     year_prcp=session.query(*sel).\
-        filter((Measurement.date)>=(2016-08-23)).filter((Measurement.date)<=dt.date(2017-08-23)).\
+        filter((Measurement.date)>=(2016,8,23)).filter((Measurement.date)<=dt.date(2017,8,23)).\
         group_by(Measurement.date).\
         order_by(Measurement.date).all()
 # Perform a query to retrieve the data and precipitation scores
@@ -103,7 +103,7 @@ def tobs_route():
     session=Session(engine) 
     sel=[Measurement.date,Measurement.tobs]
     year_temps=session.query(*sel).filter(Measurement.station=='USC00519281').\
-        filter((Measurement.date)>=(2016-08-23)).filter((Measurement.date)<=dt.date(2017-08-23)).\
+        filter((Measurement.date)>=(2016,8,23)).filter((Measurement.date)<=dt.date(2017,8,23)).\
         group_by(Measurement.date).\
         order_by(Measurement.date).all()
     session.close()
