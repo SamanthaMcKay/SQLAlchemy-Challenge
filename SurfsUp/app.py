@@ -6,7 +6,6 @@ from sqlalchemy import create_engine, func,inspect
 from flask import Flask, jsonify
 import pandas as pd
 import datetime as dt
-import json
 
 #################################################
 # Database Setup
@@ -72,15 +71,8 @@ def precipitation_route():
     session.close()
 
 # Save the query results as a Pandas DataFrame. Explicitly set the column names
-    precipitation_df=pd.DataFrame(year_prcp,columns=['date','precipitation'])
-    prcp_dict={}
-    for i,row in precipitation_df.iterrows():
-        key=row['date']
-        value=row['precipitation']
-        prcp_dict[key]=value
-
-    return jsonify(prcp_dict)
-
+    precipitation_json = [{"date": date[0],'prcp':date[1]} for date in year_prcp]
+    return jsonify(precipitation_json)
 
 
 @app.route("/api/v1.0/stations")
@@ -92,7 +84,8 @@ def station_route():
     station_list
     session.close()
 
-    return json.dumps(station_list)
+    stations_json = [{"station": station[0]} for station in station_list]
+    return jsonify(stations_json)
 
 
 #Return a JSON list of temperature observations for the previous year.
@@ -127,7 +120,7 @@ def tobs_date(start):
         min_start_range_temp = start_range_data[0][0]
         max_start_range_temp = start_range_data[0][1]
         average_start_range_temp = start_range_data[0][2]
-    session.close()        
+        session.close()        
         # Return the results as JSON
         return jsonify({
             "start_date": start,
