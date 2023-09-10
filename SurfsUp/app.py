@@ -92,9 +92,10 @@ def tobs_route():
     """Return the most active station tobs data as json"""
     #Query the dates and temperature observations of the most active station for the previous year of data.
     session=Session(engine) 
+    year_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
     sel=[Measurement.date,Measurement.tobs]
     year_temps=session.query(*sel).filter(Measurement.station=='USC00519281').\
-        filter((Measurement.date)>=(2016,8,23)).filter((Measurement.date)<=dt.date(2017,8,23)).\
+        filter((Measurement.date)>=(year_ago)).filter((Measurement.date)<=dt.date(2017,8,23)).\
         group_by(Measurement.date).\
         order_by(Measurement.date).all()
     session.close()
@@ -102,8 +103,8 @@ def tobs_route():
     station_temp_df['Date']=pd.to_datetime(station_temp_df['Date'])
     station_temp_df = station_temp_df.sort_values(by='Date')
     station_temp_df
-
-    return json.dumps(station_temp_df)
+    station_temp_json = [{"Date": day['Date'],'TOBS':day['TOBS']} for day in station_temp_df]
+    return jsonify(station_temp_json)
 
 #Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start of start-end range.
 @app.route("/api/v1.0/<start>")
