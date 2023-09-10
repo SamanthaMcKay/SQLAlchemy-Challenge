@@ -146,11 +146,11 @@ def tobs_range_date(start,end):
     session=Session(engine) 
     range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=end).all()
     session.close()  
-    
+
     if range_data:
-        min_start_temp = range_data[0][0]
-        max_start_temp = range_data[0][1]
-        average_start_temp = range_data[0][2]
+        min_range_temp = range_data[0][0]
+        max_range_temp = range_data[0][1]
+        average_range_temp = range_data[0][2]
         
         # Return the results as JSON
         return jsonify({
