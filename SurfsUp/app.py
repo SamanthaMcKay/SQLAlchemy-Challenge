@@ -46,25 +46,30 @@ def welcome():
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/<start><br/>"
         f"/api/v1.0/<start>/<end><br/>")
-
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 #Convert query results to a dictionary.
-
+# reflect an existing database into a new model
+Base=automap_base()
+# reflect the tables
+Base.prepare(autoload_with=engine)
+Measurement=Base.classes.measurement
+Station=Base.classes.station
 
 #Return the JSON representation of the dictionary.
 @app.route("/api/v1.0/precipitation")
 def precipitation_route():
     """Return the precipitation data as json"""
-    # Starting from the most recent data point in the database. 
-    session.query(Measurement.date).order_by(Measurement.date).first()
-
+    # Starting from the most recent data point in the database.
+    session=Session(engine) 
 # Calculate the date one year from the last date in data set.
     sel=[Measurement.date,Measurement.prcp]
     year_prcp=session.query(*sel).\
-        filter((Measurement.date)>=(2016,8,23)).filter((Measurement.date)<=dt.date(2017,8,23)).\
+        filter((Measurement.date)>=(2016-08-23)).filter((Measurement.date)<=dt.date(2017-08-23)).\
         group_by(Measurement.date).\
         order_by(Measurement.date).all()
 # Perform a query to retrieve the data and precipitation scores
     year_prcp
+    session.close()
 
 # Save the query results as a Pandas DataFrame. Explicitly set the column names
     precipitation_df=pd.DataFrame(year_prcp,columns=['date','precipitation'])
@@ -82,13 +87,10 @@ def precipitation_route():
 def station_route():
     """Return the station data as json"""
     # Design a query to calculate the total number of stations in the dataset
-    inspector = inspect(engine)
-    inspector.get_table_names()
-
-    columns = inspector.get_columns('station')
-
+    session=Session(engine) 
     station_list=session.query(Station.station).all()
     station_list
+    session.close()
 
     return json.dumps(station_list)
 
@@ -98,11 +100,13 @@ def station_route():
 def tobs_route():
     """Return the most active station tobs data as json"""
     #Query the dates and temperature observations of the most active station for the previous year of data.
+    session=Session(engine) 
     sel=[Measurement.date,Measurement.tobs]
     year_temps=session.query(*sel).filter(Measurement.station=='USC00519281').\
-        filter((Measurement.date)>=(2016,8,23)).filter((Measurement.date)<=dt.date(2017,8,23)).\
+        filter((Measurement.date)>=(2016-08-23)).filter((Measurement.date)<=dt.date(2017-08-23)).\
         group_by(Measurement.date).\
         order_by(Measurement.date).all()
+    session.close()
     station_temp_df=pd.DataFrame(year_temps,columns=['Date','TOBS'])
     station_temp_df['Date']=pd.to_datetime(station_temp_df['Date'])
     station_temp_df = station_temp_df.sort_values(by='Date')
@@ -116,30 +120,14 @@ def tobs_date(start):
     """Fetch the temperature information for a specific date and calculate average, min and max for all stations."""
     
     # Assuming you have imported the 'Measurement' model
-    start_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date == start).all()
-    
-    if start_data:
-        min_start_temp = start_data[0][0]
-        max_start_temp = start_data[0][1]
-        average_start_temp = start_data[0][2]
-        
-        # Return the results as JSON
-        return jsonify({
-            "date": start,
-            "minimum_temperature": min_start_temp,
-            "maximum_temperature": max_start_temp,
-            "average_temperature": average_start_temp
-        })
-    else:
-        # Handle the case where no data is found for the given date
-        return jsonify({"error": "Data not found for the specified date"}), 404
 #For a specified start, calculate TMIN, TAVG and TMAX for all the dates greater than or equal to the start date.
+    session=Session(engine)    
     start_range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=dt.date(2017,8,23)).all()
     if start_range_data:
-        min_start_temp = start_range_data[0][0]
-        max_start_temp = start_range_data[0][1]
-        average_start_temp = start_range_data[0][2]
-        
+        min_start_range_temp = start_range_data[0][0]
+        max_start_range_temp = start_range_data[0][1]
+        average_start_range_temp = start_range_data[0][2]
+    session.close()        
         # Return the results as JSON
         return jsonify({
             "start_date": start,
@@ -155,7 +143,10 @@ def tobs_date(start):
 #For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive.
 @app.route("/api/v1.0/<start>/<end>")
 def tobs_range_date(start,end):
+    session=Session(engine) 
     range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=end).all()
+    session.close()  
+    
     if range_data:
         min_start_temp = range_data[0][0]
         max_start_temp = range_data[0][1]
