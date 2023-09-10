@@ -45,14 +45,6 @@ def welcome():
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/&lt;start&gt;<br/>"
         f"/api/v1.0/&lt;start&gt;/&lt;end&gt;<br/>")
-engine = create_engine("sqlite:///Resources/hawaii.sqlite")
-#Convert query results to a dictionary.
-# reflect an existing database into a new model
-Base=automap_base()
-# reflect the tables
-Base.prepare(autoload_with=engine)
-Measurement=Base.classes.measurement
-Station=Base.classes.station
 
 #Return the JSON representation of the dictionary.
 @app.route("/api/v1.0/precipitation")
@@ -111,7 +103,7 @@ def tobs_route():
 def tobs_date(start):
     """Fetch the temperature information for a specific date and calculate average, min and max for all stations."""
     
-    # Assuming you have imported the 'Measurement' model
+# Assuming you have imported the 'Measurement' model
 #For a specified start, calculate TMIN, TAVG and TMAX for all the dates greater than or equal to the start date.
     session=Session(engine)    
     start_range_data = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date)>=start).filter((Measurement.date)<=dt.date(2017,8,23)).all()
