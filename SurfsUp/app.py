@@ -60,20 +60,18 @@ def precipitation_route():
     """Return the precipitation data as json"""
     # Starting from the most recent data point in the database.
     session=Session(engine) 
+    year_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
+    year_ago
 # Calculate the date one year from the last date in data set.
     sel=[Measurement.date,Measurement.prcp]
     year_prcp=session.query(*sel).\
-        filter((Measurement.date)>=(2016,8,23)).filter((Measurement.date)<=dt.date(2017,8,23)).\
+        filter((Measurement.date)>=(year_ago)).filter((Measurement.date)<=dt.date(2017,8,23)).\
         group_by(Measurement.date).\
         order_by(Measurement.date).all()
 # Perform a query to retrieve the data and precipitation scores
-    year_prcp
-    session.close()
-
-# Save the query results as a Pandas DataFrame. Explicitly set the column names
     precipitation_json = [{"date": date[0],'prcp':date[1]} for date in year_prcp]
     return jsonify(precipitation_json)
-
+    session.close()
 
 @app.route("/api/v1.0/stations")
 def station_route():
