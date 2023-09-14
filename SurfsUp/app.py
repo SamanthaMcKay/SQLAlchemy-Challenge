@@ -95,7 +95,7 @@ def tobs_route():
     station_temp_df['Date']=pd.to_datetime(station_temp_df['Date'])
     station_temp_df = station_temp_df.sort_values(by='Date')
     station_temp_df
-    station_temp_json = [{'Date': day['Date'],'TOBS':day['TOBS']} for day in station_temp_df]
+    station_temp_json = [{'Date': day['Date'],'TOBS':day['TOBS']} for i,day in station_temp_df.iterrows()]
     return jsonify(station_temp_json)
 
 #Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start of start-end range.
